@@ -4,7 +4,7 @@
 
 * pfsense (community veresion) - 2.4.5, 2.5.0, 2.6.0
 * pfSense+ - 23.01 - 23.09
-* OPNsense - 21.x, 22.x
+* OPNsense - 25.x
 
 ### Known Kea DHCP Issues
 
@@ -61,41 +61,66 @@ All credit goes to the user **ttmcmurry** from the [Netgate Forum](https://forum
 ### #1. Create a local copy of the following config template
 
 ```
-interface {YOUR_WAN_INTERFACE} {
-	# Enable ia-na if you want WAN to be given a prefix delegation
-	# send ia-na 0; 
-	send ia-pd 0;
-	send ia-pd 1;
-	send ia-pd 2;
-	send ia-pd 3;
-	send ia-pd 4;
-	send ia-pd 5;
+interface igc0 {
+        # Enable ia-na if you want WAN to be given a prefix delegation
+        #send ia-na 0; 
+        send ia-pd 0;
+        send ia-pd 1;
+        send ia-pd 2;
+        send ia-pd 3;
+        send ia-pd 4;
+        send ia-pd 5;
         send ia-pd 6;
-	send ia-pd 7;
-	request domain-name-servers;
-	request domain-name;
-	script "/var/etc/dhcp6c_wan_script.sh";
+#       send ia-pd 7;
+        request domain-name-servers;
+        request domain-name;
+        script "/var/etc/dhcp6c_wan_script.sh";
 };
 # Enable ia-na if you want WAN to be given a prefix delegation
 # id-assoc na 0 { };
 id-assoc pd 0 {
-	prefix-interface {YOUR_LAN_INTERFACE} {
-		sla-id 0;
-		sla-len 0;
-	};
+        prefix-interface igc1 {
+                sla-id 0;
+                sla-len 0;
+        };
 };
 id-assoc pd 1 { 
-	prefix-interface {YOUR_OTHER_LAN_INTERFACE} {
-		sla-id 0;
-		sla-len 0;
-	};
+        prefix-interface igc2 {
+                sla-id 0;
+                sla-len 0;
+        };
 };
-id-assoc pd 2 { };
-id-assoc pd 3 { };
-id-assoc pd 4 { };
-id-assoc pd 5 { };
-id-assoc pd 6 { };
-id-assoc pd 7 { };
+id-assoc pd 2 { 
+        prefix-interface vlan02 {
+                sla-id 0;
+                sla-len 0;
+        };
+};
+id-assoc pd 3 { 
+        prefix-interface xn0 {
+                sla-id 0;
+                sla-len 0;
+        };
+};
+id-assoc pd 4 { 
+        prefix-interface vlan05 {
+                sla-id 0;
+                sla-len 0;
+        };
+};
+id-assoc pd 5 { 
+        prefix-interface vlan03 {
+                sla-id 0;
+                sla-len 0;
+        };
+};
+id-assoc pd 6 { 
+        prefix-interface xn1 {
+                sla-id 0;
+                sla-len 0;
+        };
+};
+#id-assoc pd 7 { };
 ``` 
 > **Note:** The `script` declaration in the above configuration may have a different path depending on the setup. For example, some systems may have the script located at `/var/etc/dhcp6c_opt4_script.sh`. Ensure that the correct file is referenced either via SSH or through `Diagnostics -> Edit File`.
 
